@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/main/js/app.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/main/js/board.js");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -26760,12 +26760,14 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = (function (r
 
 /***/ }),
 
-/***/ "./src/main/js/app.js":
-/*!****************************!*\
-  !*** ./src/main/js/app.js ***!
-  \****************************/
+/***/ "./src/main/js/board.js":
+/*!******************************!*\
+  !*** ./src/main/js/board.js ***!
+  \******************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -26791,240 +26793,121 @@ var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/in
 
 var client = __webpack_require__(/*! ./client */ "./src/main/js/client.js");
 
-var App =
+var UserFleetBoard =
 /*#__PURE__*/
 function (_React$Component) {
-  _inherits(App, _React$Component);
+  _inherits(UserFleetBoard, _React$Component);
 
-  function App(props) {
+  function UserFleetBoard(props) {
     var _this;
 
-    _classCallCheck(this, App);
+    _classCallCheck(this, UserFleetBoard);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(App).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UserFleetBoard).call(this, props));
     _this.state = {
-      boards: []
+      height: 10,
+      width: 10,
+      cells: [],
+      rows: []
     };
-
-    _this.loadFromServer(); // this.loadBoards = this.loadBoards.bind(this);
-
-
     _this.loadFromServer = _this.loadFromServer.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.cellUpdate = _this.cellUpdate.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
 
-  _createClass(App, [{
+  _createClass(UserFleetBoard, [{
     key: "loadFromServer",
     value: function loadFromServer() {
       var _this2 = this;
 
       client({
         method: 'GET',
-        path: '/boards'
+        path: '/board?type=userFleetBoard'
       }).done(function (response) {
         _this2.setState({
-          boards: response.entity._embedded.boards
+          cells: response.entity.cells
         });
       });
     }
   }, {
+    key: "cellUpdate",
+    value: function cellUpdate(cell) {
+      this.loadFromServer();
+    }
+  }, {
     key: "componentDidMount",
     value: function componentDidMount() {
+      this.loadFromServer();
+    }
+  }, {
+    key: "render",
+    value: function render() {
       var _this3 = this;
 
-      this.state.boards.forEach(function (board) {
-        if (board.type == 'userFleetBoard') {
-          _this3.setState({
-            userFleetBoard: board
-          });
-        } else {
-          _this3.setState({
-            computerFleetBoard: board
-          });
-        }
-      });
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var sts = this.state.boards.map(function (board) {
-        return React.createElement(Board, {
-          key: board._links.self.href,
-          board: board
-        });
-      });
-      return React.createElement("div", null, sts);
-    }
-  }]);
-
-  return App;
-}(React.Component);
-
-var Board =
-/*#__PURE__*/
-function (_React$Component2) {
-  _inherits(Board, _React$Component2);
-
-  function Board(props) {
-    var _this4;
-
-    _classCallCheck(this, Board);
-
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(Board).call(this, props));
-    _this4.state = {
-      cells: [],
-      rows: []
-    };
-
-    _this4.updateState(); //        this.updateState = this.updateState.bind(this);
-
-
-    return _this4;
-  }
-
-  _createClass(Board, [{
-    key: "updateState",
-    value: function updateState() {
-      var _this5 = this;
-
-      client({
-        method: 'GET',
-        path: this.props.board._links.cells.href
-      }).done(function (response) {
-        _this5.setState({
-          cells: response.entity._embedded.cells
-        });
-      });
-    }
-  }, {
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      if (this.state.cells.length !== 0) {
-        var maps = [];
-
-        for (var r = 0; r < this.props.board.mapHeight; r++) {
-          maps.push(this.props.cells.slice(r * this.props.board.mapWidth, (r + 1) * this.props.board.mapWidth));
-        }
-
-        this.setState({
-          rows: maps.map(function (cellsInRow) {
-            return React.createElement(Row, {
-              key: cellsInRow,
-              cells: cellsInRow
-            });
-          })
-        });
-      }
-    }
-  }, {
-    key: "render",
-    value: function render() {
       var foobar = "   ";
+      var map = this.state.cells.map(function (cell) {
+        return React.createElement(Cell, {
+          key: cell.id,
+          cell: cell,
+          cellUpdate: _this3.cellUpdate
+        });
+      });
       return React.createElement("div", {
         className: "game-board"
       }, React.createElement("div", {
         className: "status"
-      }, this.props.board.type), this.state.rows, React.createElement("div", {
+      }, "UserFleetBoard"), map, React.createElement("div", {
         className: "status"
       }, foobar));
     }
   }]);
 
-  return Board;
-}(React.Component);
-
-var Row =
-/*#__PURE__*/
-function (_React$Component3) {
-  _inherits(Row, _React$Component3);
-
-  function Row() {
-    _classCallCheck(this, Row);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Row).apply(this, arguments));
-  }
-
-  _createClass(Row, [{
-    key: "render",
-    value: function render() {
-      var row = this.props.cells.map(function (cell) {
-        return React.createElement(Cell, {
-          key: cell._links.self.href,
-          cell: cell
-        });
-      });
-      return React.createElement("div", {
-        className: "board-row"
-      }, row);
-    }
-  }]);
-
-  return Row;
+  return UserFleetBoard;
 }(React.Component);
 
 var Cell =
 /*#__PURE__*/
-function (_React$Component4) {
-  _inherits(Cell, _React$Component4);
+function (_React$Component2) {
+  _inherits(Cell, _React$Component2);
 
   function Cell(props) {
-    var _this6;
+    var _this4;
 
     _classCallCheck(this, Cell);
 
-    _this6 = _possibleConstructorReturn(this, _getPrototypeOf(Cell).call(this, props));
-    _this6.state = {};
-    _this6.handleHit = _this6.handleHit.bind(_assertThisInitialized(_assertThisInitialized(_this6)));
-    _this6.updateState = _this6.updateState.bind(_assertThisInitialized(_assertThisInitialized(_this6)));
-    return _this6;
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(Cell).call(this, props));
+    _this4.handleHit = _this4.handleHit.bind(_assertThisInitialized(_assertThisInitialized(_this4)));
+    return _this4;
   }
 
   _createClass(Cell, [{
-    key: "updateState",
-    value: function updateState() {
-      var _this7 = this;
-
-      client({
-        method: 'GET',
-        path: this.props.cell._links.self.href
-      }).done(function (response) {
-        _this7.setState({
-          cell: response.entity
-        });
-
-        _this7.setState({
-          value: _this7.props.cell.sunk == true ? "." : _this7.props.cell.hit == true ? "X" : _this7.props.cell.shipCell == true ? "S" : " "
-        });
-      });
-    }
-  }, {
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.updateState();
-    }
-  }, {
     key: "handleHit",
     value: function handleHit() {
       client({
         method: 'GET',
-        path: '/hitcell?href=' + this.props.cell._links.self.href
+        path: '/hitcell?id=' + this.props.cell.id
       }).done(function (response) {});
-      this.updateState();
+      this.props.cellUpdate(this.props.cell);
     }
   }, {
     key: "render",
     value: function render() {
-      return React.createElement("button", {
-        className: "square",
-        onClick: this.handleHit
-      }, this.state.value);
+      var _React$createElement;
+
+      var stateVal = this.props.cell.sunk == true ? "." : this.props.cell.hit == true ? "X" : this.props.cell.shipCell == true ? "S" : " ";
+      return React.createElement("button", (_React$createElement = {
+        className: "square"
+      }, _defineProperty(_React$createElement, "className", "board-cell"), _defineProperty(_React$createElement, "onClick", this.handleHit), _React$createElement), stateVal);
     }
   }]);
 
   return Cell;
 }(React.Component);
 
-ReactDOM.render(React.createElement(App, null), document.getElementById('react'));
+ReactDOM.render(React.createElement(UserFleetBoard, null), document.getElementById('userFleetBoard')); // ReactDOM.render(
+// 	<ComputerFleetBoard />,
+// 	document.getElementById('computerFleetBoard')
+// )
 
 /***/ }),
 

@@ -2,57 +2,88 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
 
-import Row from './row.js'
-import Cell from './cell.js'
 
-export default class Board extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {cells : []};
-    }
+class UserFleetBoard extends React.Component {
 
-    componentDidMount() {
-        client({method: 'GET', path: this.props.board._links.cells.href}).done(response => {
-            this.setState({cells: response.entity._embedded.cells});
+	constructor(props) {
+		super(props);
+        this.state = { 
+            height : 10,
+            width: 10,
+            cells: [],
+            rows: []
+        };
+
+        this.loadFromServer = this.loadFromServer.bind(this);
+        this.cellUpdate = this.cellUpdate.bind(this);
+	}
+
+    loadFromServer() {
+        client({method: 'GET', path: '/board?type=userFleetBoard'}).done(response => {
+            this.setState({cells: response.entity.cells });
         });
     }
 
+    cellUpdate(cell) {
+        this.loadFromServer();
+    }
+
+	componentDidMount() {
+        this.loadFromServer();
+	}
+
 	render() {
-//        const maps = this.state.cells.map((cell, i) => {
-//            if(i % this.props.colCount == 0)
-//                return (<tr><Cell key={cell._links.self.href} cell={cell} />)
-//            if(i % this.props.colCount == this.props.colCount - 1)
-//                return (<Cell key={cell._links.self.href} cell={cell} /></tr>)
-//            return (<Cell key={cell._links.self.href} cell={cell} />)
-//        });
-
-//        var maps = [];
-//        for(var r=0; r<this.props.rowCount; r++) {
-//            var cellsInRow = [];
-//            for(var c=0; c<this.props.colCount; c++) {
-//                var i =  r*this.props.colCount + c;
-//                cellsInRow.push(this.state.cells[i]);
-//            }
-//
-//            maps.push(cellsInRow);
-//        }
-//
-//        const board = maps.map(cellsInRow =>
-//            <Row cells={cellsInRow} />
-//        );
-
-        const foobar =this.state.cells.map((cell, i) => {
-              return (<Cell key={cell._links.self.href} cell={cell} />)
-          });
+        const foobar = "   ";
+        const map = this.state.cells.map ( cell =>
+            <Cell key={cell.id} cell={cell} cellUpdate={this.cellUpdate} />    
+        )
 
         return (
-        <table>
-            <tbody>
-            <tr>
-           {foobar}
-           </tr>
-           </tbody>
-        </table>
+        <div className="game-board">
+            <div className="status">UserFleetBoard</div>
+            {map}
+            <div className="status">{foobar}</div>
+        </div>
         )
     }
 }
+
+class Cell extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleHit = this.handleHit.bind(this);
+    }
+
+    handleHit() {
+        client({method: 'GET', path: '/hitcell?id=' + this.props.cell.id }).done(response => {
+
+        });
+        this.props.cellUpdate(this.props.cell);
+    }
+
+    render() {
+        let stateVal = this.props.cell.sunk == true ? "." : this.props.cell.hit == true ? "X" : this.props.cell.shipCell == true ? "S" : " ";
+        return (
+            <button
+                className="square"
+                className="board-cell"
+                onClick={this.handleHit}
+            >
+              {stateVal}
+            </button>
+        )
+    }
+}
+
+
+
+
+ReactDOM.render(
+	<UserFleetBoard />,
+	document.getElementById('userFleetBoard')
+)
+
+// ReactDOM.render(
+// 	<ComputerFleetBoard />,
+// 	document.getElementById('computerFleetBoard')
+// )

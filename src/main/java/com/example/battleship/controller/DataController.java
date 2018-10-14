@@ -39,9 +39,7 @@ public class DataController {
     }
 
     @RequestMapping(path="hitcell") // This means URL's start with /hitcell (after Application path)
-    public String updateCell(@RequestParam(value="href")String href) {
-        String[] parts = href.split("/");
-        Integer id = Integer.parseInt(parts[parts.length - 1]);
+    public String updateCell(@RequestParam(value="id") Integer id) {
         Cell cell = cellRepository.findById(id).get();
         cell.getMap().attackCell(cell);
         cellRepository.save(cell);

@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<style>
+    .game-board {
+        width : 100%
+    }
+    .board-cell {
+        width : 10%
+    }
+</style>
 <head lang="en">
     <meta charset="UTF-8"/>
     <title>ReactJS + Spring Data REST</title>
 </head>
 <body>
 
-<div id="react"></div>
+<div id="userFleetBoard" class="game-board"></div>
+
+<div id="computerFleetBoard" class="game-board"></div>
 
 <script src="built/bundle.js"></script>
 
