@@ -26767,8 +26767,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = (function (r
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26849,7 +26847,8 @@ function (_React$Component) {
         return React.createElement(Cell, {
           key: cell.id,
           cell: cell,
-          cellUpdate: _this3.cellUpdate
+          cellUpdate: _this3.cellUpdate,
+          type: "User"
         });
       });
       return React.createElement("div", {
@@ -26865,19 +26864,92 @@ function (_React$Component) {
   return UserFleetBoard;
 }(React.Component);
 
-var Cell =
+var ComputerFleetBoard =
 /*#__PURE__*/
 function (_React$Component2) {
-  _inherits(Cell, _React$Component2);
+  _inherits(ComputerFleetBoard, _React$Component2);
+
+  function ComputerFleetBoard(props) {
+    var _this4;
+
+    _classCallCheck(this, ComputerFleetBoard);
+
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(ComputerFleetBoard).call(this, props));
+    _this4.state = {
+      height: 10,
+      width: 10,
+      cells: [],
+      rows: []
+    };
+    _this4.loadFromServer = _this4.loadFromServer.bind(_assertThisInitialized(_assertThisInitialized(_this4)));
+    _this4.cellUpdate = _this4.cellUpdate.bind(_assertThisInitialized(_assertThisInitialized(_this4)));
+    return _this4;
+  }
+
+  _createClass(ComputerFleetBoard, [{
+    key: "loadFromServer",
+    value: function loadFromServer() {
+      var _this5 = this;
+
+      client({
+        method: 'GET',
+        path: '/board?type=computerFleetBoard'
+      }).done(function (response) {
+        _this5.setState({
+          cells: response.entity.cells
+        });
+      });
+    }
+  }, {
+    key: "cellUpdate",
+    value: function cellUpdate(cell) {
+      this.loadFromServer();
+    }
+  }, {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.loadFromServer();
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this6 = this;
+
+      var foobar = "   ";
+      var map = this.state.cells.map(function (cell) {
+        return React.createElement(Cell, {
+          key: cell.id,
+          cell: cell,
+          cellUpdate: _this6.cellUpdate,
+          type: "Computer"
+        });
+      });
+      return React.createElement("div", {
+        className: "game-board"
+      }, React.createElement("div", {
+        className: "status"
+      }, "ComputerFleetBoard"), map, React.createElement("div", {
+        className: "status"
+      }, foobar));
+    }
+  }]);
+
+  return ComputerFleetBoard;
+}(React.Component);
+
+var Cell =
+/*#__PURE__*/
+function (_React$Component3) {
+  _inherits(Cell, _React$Component3);
 
   function Cell(props) {
-    var _this4;
+    var _this7;
 
     _classCallCheck(this, Cell);
 
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(Cell).call(this, props));
-    _this4.handleHit = _this4.handleHit.bind(_assertThisInitialized(_assertThisInitialized(_this4)));
-    return _this4;
+    _this7 = _possibleConstructorReturn(this, _getPrototypeOf(Cell).call(this, props));
+    _this7.handleHit = _this7.handleHit.bind(_assertThisInitialized(_assertThisInitialized(_this7)));
+    return _this7;
   }
 
   _createClass(Cell, [{
@@ -26892,22 +26964,28 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _React$createElement;
+      var stateVal = this.props.cell.sunk == true ? "." : this.props.cell.hit == true ? "X" : this.props.cell.shipCell == true ? "S" : "-";
+      var cumtomCss = "invisible";
 
-      var stateVal = this.props.cell.sunk == true ? "." : this.props.cell.hit == true ? "X" : this.props.cell.shipCell == true ? "S" : " ";
-      return React.createElement("button", (_React$createElement = {
-        className: "square"
-      }, _defineProperty(_React$createElement, "className", "board-cell"), _defineProperty(_React$createElement, "onClick", this.handleHit), _React$createElement), stateVal);
+      if (this.props.type == "User") {
+        cumtomCss = this.props.cell.hit == true ? "visible" : this.props.cell.shipCell == true ? "visible" : "invisible";
+      } else {
+        cumtomCss = this.props.cell.hit == false ? "invisible" : "visible";
+      }
+
+      var className = "square board-cell " + cumtomCss;
+      return React.createElement("button", {
+        className: className,
+        onClick: this.handleHit
+      }, stateVal);
     }
   }]);
 
   return Cell;
 }(React.Component);
 
-ReactDOM.render(React.createElement(UserFleetBoard, null), document.getElementById('userFleetBoard')); // ReactDOM.render(
-// 	<ComputerFleetBoard />,
-// 	document.getElementById('computerFleetBoard')
-// )
+ReactDOM.render(React.createElement(UserFleetBoard, null), document.getElementById('userFleetBoard'));
+ReactDOM.render(React.createElement(ComputerFleetBoard, null), document.getElementById('computerFleetBoard'));
 
 /***/ }),
 
