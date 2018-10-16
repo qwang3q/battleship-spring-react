@@ -15,16 +15,54 @@ class UserFleetBoard extends React.Component {
 
         this.loadFromServer = this.loadFromServer.bind(this);
         this.cellUpdate = this.cellUpdate.bind(this);
+        this.getCellDisplayStyle = this.getCellDisplayStyle.bind(this);
+        this.getCellDisplayVal = this.getCellDisplayVal.bind(this);
 	}
 
     loadFromServer() {
         client({method: 'GET', path: '/board?type=userFleetBoard'}).done(response => {
-            this.setState({cells: response.entity.cells });
+            client({method: 'GET', path: '/boards/' + response.entity.id + '/cells'}).done(response2 => {
+                this.setState({cells: response2.entity._embedded.cells });
+            });
         });
     }
 
+    getCell(cell) {
+        client({method: 'GET', path: cell._links.self.href}).done(response => {
+            return response.entity;
+        });
+    }
+
+    getCellDisplayVal(cell) {
+        return cell.sunk == true ? "." : cell.hit == true ? "X" : cell.shipCell == true ? "S" : "-";
+    }
+
+    getCellDisplayStyle(cell) {
+        let cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
+        return "square board-cell " + cumtomCss;
+    }
+
     cellUpdate(cell) {
+        let id = cell._links.self.href.split('/')[4];
+        client({method: 'GET', path: "/hitcell?id=" + id}).done(response => {
+
+        });
+
         this.loadFromServer();
+
+        // // 1. Make a shallow copy of the items
+        // let cells = [...this.state.cells];
+        // // 2. Make a shallow copy of the item you want to mutate
+        // let newCells = cells.map(c => {
+        //     if((c._links.self.href == cell._links.self.href) ||
+        //         ((c.shipCell == true) && (c._links.ship.href !== cell._links.ship.href))) {
+        //         c;
+        //     } else {
+        //         this.getCell(c);
+        //     }
+        // });
+        // // 5. Set the state to our new copy
+        // this.setState({newCells});
     }
 
 	componentDidMount() {
@@ -34,7 +72,13 @@ class UserFleetBoard extends React.Component {
 	render() {
         const foobar = "   ";
         const map = this.state.cells.map ( cell =>
-            <Cell key={cell.id} cell={cell} cellUpdate={this.cellUpdate} type="User" />    
+            <Cell key={
+                cell._links.self.href} 
+                cell={cell} 
+                cellUpdate={this.cellUpdate} 
+                type="User"
+                cellVal={this.getCellDisplayVal(cell)}
+                cellStyle={this.getCellDisplayStyle(cell)} />
         )
 
         return (
@@ -68,8 +112,30 @@ class ComputerFleetBoard extends React.Component {
         });
     }
 
+    getCell(cell) {
+        client({method: 'GET', path: cell._links.self.href}).done(response => {
+            return response.entity._embedded.cell;
+        });
+    }
+
     cellUpdate(cell) {
-        this.loadFromServer();
+        let id = cell._links.self.href.split('/')[4];
+        client({method: 'GET', path: "/hitcell?id=" + id}).done(response => {
+
+        });
+
+        // 1. Make a shallow copy of the items
+        let cells = [...this.state.cells];
+        // 2. Make a shallow copy of the item you want to mutate
+        let newCells = cells.map(c => {
+            if((c._links.self.href == cell._links.self.href) ||
+                ((c.shipCell == true) && (c._links.ship.href !== cell._links.ship.href))) {
+                return c;
+            }
+            return this.getCell(c)
+        });
+        // 5. Set the state to our new copy
+        this.setState({items});
     }
 
 	componentDidMount() {
@@ -99,27 +165,31 @@ class Cell extends React.Component {
     }
 
     handleHit() {
-        client({method: 'GET', path: '/hitcell?id=' + this.props.cell.id }).done(response => {
-
-        });
         this.props.cellUpdate(this.props.cell);
     }
 
+    // updateState(cell) {
+    //     let stateVal = cell.sunk == true ? "." : cell.hit == true ? "X" : cell.shipCell == true ? "S" : "-";
+    //     let cumtomCss = "invisible"
+    //     if(this.props.type == "User") {
+    //         cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
+    //     } else {
+    //         cumtomCss = cell.hit == false ? "invisible" : "visible";
+    //     }
+    //     let className = "square board-cell " + cumtomCss;
+    //     this.setState({
+    //         val: stateVal,
+    //         sty: className
+    //     })
+    // }
+
     render() {
-        let stateVal = this.props.cell.sunk == true ? "." : this.props.cell.hit == true ? "X" : this.props.cell.shipCell == true ? "S" : "-";
-        let cumtomCss = "invisible"
-        if(this.props.type == "User") {
-            cumtomCss = this.props.cell.hit == true ? "visible" : this.props.cell.shipCell == true ? "visible" : "invisible";
-        } else {
-            cumtomCss = this.props.cell.hit == false ? "invisible" : "visible";
-        }
-        let className = "square board-cell " + cumtomCss;
         return (
             <button
-                className={className}
+                className={this.props.cellStyle}
                 onClick={this.handleHit}
             >
-              {stateVal}
+              {this.props.cellVal}
             </button>
         )
     }
@@ -133,7 +203,7 @@ ReactDOM.render(
 	document.getElementById('userFleetBoard')
 )
 
-ReactDOM.render(
-	<ComputerFleetBoard />,
-	document.getElementById('computerFleetBoard')
-)
+// ReactDOM.render(
+// 	<ComputerFleetBoard />,
+// 	document.getElementById('computerFleetBoard')
+// )

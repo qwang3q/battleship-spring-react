@@ -26767,6 +26767,14 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = (function (r
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26810,6 +26818,8 @@ function (_React$Component) {
     };
     _this.loadFromServer = _this.loadFromServer.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.cellUpdate = _this.cellUpdate.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.getCellDisplayStyle = _this.getCellDisplayStyle.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.getCellDisplayVal = _this.getCellDisplayVal.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
 
@@ -26822,15 +26832,59 @@ function (_React$Component) {
         method: 'GET',
         path: '/board?type=userFleetBoard'
       }).done(function (response) {
-        _this2.setState({
-          cells: response.entity.cells
+        client({
+          method: 'GET',
+          path: '/boards/' + response.entity.id + '/cells'
+        }).done(function (response2) {
+          _this2.setState({
+            cells: response2.entity._embedded.cells
+          });
         });
       });
     }
   }, {
+    key: "getCell",
+    value: function getCell(cell) {
+      client({
+        method: 'GET',
+        path: cell._links.self.href
+      }).done(function (response) {
+        return response.entity;
+      });
+    }
+  }, {
+    key: "getCellDisplayVal",
+    value: function getCellDisplayVal(cell) {
+      return cell.sunk == true ? "." : cell.hit == true ? "X" : cell.shipCell == true ? "S" : "-";
+    }
+  }, {
+    key: "getCellDisplayStyle",
+    value: function getCellDisplayStyle(cell) {
+      var cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
+      return "square board-cell " + cumtomCss;
+    }
+  }, {
     key: "cellUpdate",
     value: function cellUpdate(cell) {
-      this.loadFromServer();
+      var id = cell._links.self.href.split('/')[4];
+
+      client({
+        method: 'GET',
+        path: "/hitcell?id=" + id
+      }).done(function (response) {});
+      this.loadFromServer(); // // 1. Make a shallow copy of the items
+      // let cells = [...this.state.cells];
+      // // 2. Make a shallow copy of the item you want to mutate
+      // let newCells = cells.map(c => {
+      //     if((c._links.self.href == cell._links.self.href) ||
+      //         ((c.shipCell == true) && (c._links.ship.href !== cell._links.ship.href))) {
+      //         c;
+      //     } else {
+      //         this.getCell(c);
+      //     }
+      // });
+      // // 5. Set the state to our new copy
+      // this.setState({newCells});
     }
   }, {
     key: "componentDidMount",
@@ -26845,10 +26899,12 @@ function (_React$Component) {
       var foobar = "   ";
       var map = this.state.cells.map(function (cell) {
         return React.createElement(Cell, {
-          key: cell.id,
+          key: cell._links.self.href,
           cell: cell,
           cellUpdate: _this3.cellUpdate,
-          type: "User"
+          type: "User",
+          cellVal: _this3.getCellDisplayVal(cell),
+          cellStyle: _this3.getCellDisplayStyle(cell)
         });
       });
       return React.createElement("div", {
@@ -26901,9 +26957,41 @@ function (_React$Component2) {
       });
     }
   }, {
+    key: "getCell",
+    value: function getCell(cell) {
+      client({
+        method: 'GET',
+        path: cell._links.self.href
+      }).done(function (response) {
+        return response.entity._embedded.cell;
+      });
+    }
+  }, {
     key: "cellUpdate",
     value: function cellUpdate(cell) {
-      this.loadFromServer();
+      var _this6 = this;
+
+      var id = cell._links.self.href.split('/')[4];
+
+      client({
+        method: 'GET',
+        path: "/hitcell?id=" + id
+      }).done(function (response) {}); // 1. Make a shallow copy of the items
+
+      var cells = _toConsumableArray(this.state.cells); // 2. Make a shallow copy of the item you want to mutate
+
+
+      var newCells = cells.map(function (c) {
+        if (c._links.self.href == cell._links.self.href || c.shipCell == true && c._links.ship.href !== cell._links.ship.href) {
+          return c;
+        }
+
+        return _this6.getCell(c);
+      }); // 5. Set the state to our new copy
+
+      this.setState({
+        items: items
+      });
     }
   }, {
     key: "componentDidMount",
@@ -26913,14 +27001,14 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      var _this6 = this;
+      var _this7 = this;
 
       var foobar = "   ";
       var map = this.state.cells.map(function (cell) {
         return React.createElement(Cell, {
           key: cell.id,
           cell: cell,
-          cellUpdate: _this6.cellUpdate,
+          cellUpdate: _this7.cellUpdate,
           type: "Computer"
         });
       });
@@ -26943,49 +27031,51 @@ function (_React$Component3) {
   _inherits(Cell, _React$Component3);
 
   function Cell(props) {
-    var _this7;
+    var _this8;
 
     _classCallCheck(this, Cell);
 
-    _this7 = _possibleConstructorReturn(this, _getPrototypeOf(Cell).call(this, props));
-    _this7.handleHit = _this7.handleHit.bind(_assertThisInitialized(_assertThisInitialized(_this7)));
-    return _this7;
+    _this8 = _possibleConstructorReturn(this, _getPrototypeOf(Cell).call(this, props));
+    _this8.handleHit = _this8.handleHit.bind(_assertThisInitialized(_assertThisInitialized(_this8)));
+    return _this8;
   }
 
   _createClass(Cell, [{
     key: "handleHit",
     value: function handleHit() {
-      client({
-        method: 'GET',
-        path: '/hitcell?id=' + this.props.cell.id
-      }).done(function (response) {});
       this.props.cellUpdate(this.props.cell);
-    }
+    } // updateState(cell) {
+    //     let stateVal = cell.sunk == true ? "." : cell.hit == true ? "X" : cell.shipCell == true ? "S" : "-";
+    //     let cumtomCss = "invisible"
+    //     if(this.props.type == "User") {
+    //         cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
+    //     } else {
+    //         cumtomCss = cell.hit == false ? "invisible" : "visible";
+    //     }
+    //     let className = "square board-cell " + cumtomCss;
+    //     this.setState({
+    //         val: stateVal,
+    //         sty: className
+    //     })
+    // }
+
   }, {
     key: "render",
     value: function render() {
-      var stateVal = this.props.cell.sunk == true ? "." : this.props.cell.hit == true ? "X" : this.props.cell.shipCell == true ? "S" : "-";
-      var cumtomCss = "invisible";
-
-      if (this.props.type == "User") {
-        cumtomCss = this.props.cell.hit == true ? "visible" : this.props.cell.shipCell == true ? "visible" : "invisible";
-      } else {
-        cumtomCss = this.props.cell.hit == false ? "invisible" : "visible";
-      }
-
-      var className = "square board-cell " + cumtomCss;
       return React.createElement("button", {
-        className: className,
+        className: this.props.cellStyle,
         onClick: this.handleHit
-      }, stateVal);
+      }, this.props.cellVal);
     }
   }]);
 
   return Cell;
 }(React.Component);
 
-ReactDOM.render(React.createElement(UserFleetBoard, null), document.getElementById('userFleetBoard'));
-ReactDOM.render(React.createElement(ComputerFleetBoard, null), document.getElementById('computerFleetBoard'));
+ReactDOM.render(React.createElement(UserFleetBoard, null), document.getElementById('userFleetBoard')); // ReactDOM.render(
+// 	<ComputerFleetBoard />,
+// 	document.getElementById('computerFleetBoard')
+// )
 
 /***/ }),
 
