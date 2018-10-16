@@ -26940,12 +26940,48 @@ function (_React$Component2) {
   return Cell;
 }(React.Component);
 
+var NewGame =
+/*#__PURE__*/
+function (_React$Component3) {
+  _inherits(NewGame, _React$Component3);
+
+  function NewGame(props) {
+    var _this5;
+
+    _classCallCheck(this, NewGame);
+
+    _this5 = _possibleConstructorReturn(this, _getPrototypeOf(NewGame).call(this, props));
+    _this5.handleClick = _this5.handleClick.bind(_assertThisInitialized(_assertThisInitialized(_this5)));
+    return _this5;
+  }
+
+  _createClass(NewGame, [{
+    key: "handleClick",
+    value: function handleClick() {
+      client({
+        method: 'GET',
+        path: "/newgame"
+      }).done(function (response) {});
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return React.createElement("button", {
+        onClick: this.handleClick
+      }, "Start New Game");
+    }
+  }]);
+
+  return NewGame;
+}(React.Component);
+
 ReactDOM.render(React.createElement(Board, {
   type: "userFleetBoard"
 }), document.getElementById('userFleetBoard'));
 ReactDOM.render(React.createElement(Board, {
   type: "computerFleetBoard"
 }), document.getElementById('computerFleetBoard'));
+ReactDOM.render(React.createElement(NewGame, null), document.getElementById('newGame'));
 
 /***/ }),
 

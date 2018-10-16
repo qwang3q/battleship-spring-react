@@ -1,5 +1,6 @@
 package com.example.battleship;
 
+import com.example.battleship.controller.DataController;
 import com.example.battleship.controller.GameController;
 import com.example.battleship.repository.CellRepository;
 import com.example.battleship.repository.MapRepository;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 import javax.persistence.EntityManager;
 
 @Component
-public class DatabaseLoader implements CommandLineRunner {
+public class DatabaseLoader<DatabaseController> implements CommandLineRunner {
 
     private EntityManager em;
 
@@ -40,12 +41,6 @@ public class DatabaseLoader implements CommandLineRunner {
         this.mapRepository.save(gameController.getUserFleetBoard());
         this.mapRepository.save(gameController.getComputerFleetBoard());
 
-
-        logger.trace("A TRACE Message" + "from database loader");
-        logger.debug("A DEBUG Message" + "from database loader");
-        logger.info("An INFO Message" + "from database loader");
-        logger.warn("A WARN Message" + "from database loader");
-        logger.error("An ERROR Message" + "from database loader");
-
+        logger.info("An INFO Message: Game started");
     }
 }

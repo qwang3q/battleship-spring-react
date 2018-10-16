@@ -82,6 +82,8 @@ class Board extends React.Component {
     }
 }
 
+
+
 class Cell extends React.Component {
     constructor(props) {
         super(props);
@@ -105,6 +107,29 @@ class Cell extends React.Component {
 }
 
 
+class NewGame extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick() {
+        client({method: 'GET', path: "/newgame"}).done(response => {
+
+        });
+    }
+
+    render() {
+        return (
+            <button
+                onClick={this.handleClick}
+            >
+              Start New Game
+            </button>
+        )
+    }
+}
+
 
 
 ReactDOM.render(
@@ -115,4 +140,9 @@ ReactDOM.render(
 ReactDOM.render(
 	<Board type="computerFleetBoard" />,
 	document.getElementById('computerFleetBoard')
+)
+
+ReactDOM.render(
+	<NewGame />,
+	document.getElementById('newGame')
 )
