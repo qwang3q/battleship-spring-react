@@ -39,7 +39,7 @@ class Board extends React.Component {
 
     getCellDisplayStyle(cell) {
         let cumtomCss = "invisible"
-        if(this.props.type == "UserFleetBoard") {
+        if(this.props.type == "userFleetBoard") {
             cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
         } else {
             cumtomCss = cell.hit == false ? "invisible" : "visible";
@@ -82,73 +82,6 @@ class Board extends React.Component {
     }
 }
 
-class ComputerFleetBoard extends React.Component {
-
-	constructor(props) {
-		super(props);
-        this.state = { 
-            height : 10,
-            width: 10,
-            cells: [],
-            rows: []
-        };
-
-        this.loadFromServer = this.loadFromServer.bind(this);
-        this.cellUpdate = this.cellUpdate.bind(this);
-	}
-
-    loadFromServer() {
-        client({method: 'GET', path: '/board?type=computerFleetBoard'}).done(response => {
-            this.setState({cells: response.entity.cells });
-        });
-    }
-
-    getCell(cell) {
-        client({method: 'GET', path: cell._links.self.href}).done(response => {
-            return response.entity._embedded.cell;
-        });
-    }
-
-    cellUpdate(cell) {
-        let id = cell._links.self.href.split('/')[4];
-        client({method: 'GET', path: "/hitcell?id=" + id}).done(response => {
-
-        });
-
-        // 1. Make a shallow copy of the items
-        let cells = [...this.state.cells];
-        // 2. Make a shallow copy of the item you want to mutate
-        let newCells = cells.map(c => {
-            if((c._links.self.href == cell._links.self.href) ||
-                ((c.shipCell == true) && (c._links.ship.href !== cell._links.ship.href))) {
-                return c;
-            }
-            return this.getCell(c)
-        });
-        // 5. Set the state to our new copy
-        this.setState({items});
-    }
-
-	componentDidMount() {
-        this.loadFromServer();
-	}
-
-	render() {
-        const foobar = "   ";
-        const map = this.state.cells.map ( cell =>
-            <Cell key={cell.id} cell={cell} cellUpdate={this.cellUpdate}  type="Computer" />    
-        )
-
-        return (
-        <div className="game-board">
-            <div className="status">ComputerFleetBoard</div>
-            {map}
-            <div className="status">{foobar}</div>
-        </div>
-        )
-    }
-}
-
 class Cell extends React.Component {
     constructor(props) {
         super(props);
@@ -175,11 +108,11 @@ class Cell extends React.Component {
 
 
 ReactDOM.render(
-	<Board type="UserFleetBoard"/>,
+	<Board type="userFleetBoard"/>,
 	document.getElementById('userFleetBoard')
 )
 
 ReactDOM.render(
-	<Board type="ComputerFleetBoard" />,
+	<Board type="computerFleetBoard" />,
 	document.getElementById('computerFleetBoard')
 )

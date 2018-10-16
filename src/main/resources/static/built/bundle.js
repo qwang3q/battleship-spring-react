@@ -26767,14 +26767,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_RESULT__ = (function (r
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26862,7 +26854,7 @@ function (_React$Component) {
     value: function getCellDisplayStyle(cell) {
       var cumtomCss = "invisible";
 
-      if (this.props.type == "UserFleetBoard") {
+      if (this.props.type == "userFleetBoard") {
         cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
       } else {
         cumtomCss = cell.hit == false ? "invisible" : "visible";
@@ -26906,7 +26898,7 @@ function (_React$Component) {
         className: "game-board"
       }, React.createElement("div", {
         className: "status"
-      }, "UserFleetBoard"), map, React.createElement("div", {
+      }, this.props.type), map, React.createElement("div", {
         className: "status"
       }, foobar));
     }
@@ -26915,124 +26907,19 @@ function (_React$Component) {
   return Board;
 }(React.Component);
 
-var ComputerFleetBoard =
-/*#__PURE__*/
-function (_React$Component2) {
-  _inherits(ComputerFleetBoard, _React$Component2);
-
-  function ComputerFleetBoard(props) {
-    var _this4;
-
-    _classCallCheck(this, ComputerFleetBoard);
-
-    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(ComputerFleetBoard).call(this, props));
-    _this4.state = {
-      height: 10,
-      width: 10,
-      cells: [],
-      rows: []
-    };
-    _this4.loadFromServer = _this4.loadFromServer.bind(_assertThisInitialized(_assertThisInitialized(_this4)));
-    _this4.cellUpdate = _this4.cellUpdate.bind(_assertThisInitialized(_assertThisInitialized(_this4)));
-    return _this4;
-  }
-
-  _createClass(ComputerFleetBoard, [{
-    key: "loadFromServer",
-    value: function loadFromServer() {
-      var _this5 = this;
-
-      client({
-        method: 'GET',
-        path: '/board?type=computerFleetBoard'
-      }).done(function (response) {
-        _this5.setState({
-          cells: response.entity.cells
-        });
-      });
-    }
-  }, {
-    key: "getCell",
-    value: function getCell(cell) {
-      client({
-        method: 'GET',
-        path: cell._links.self.href
-      }).done(function (response) {
-        return response.entity._embedded.cell;
-      });
-    }
-  }, {
-    key: "cellUpdate",
-    value: function cellUpdate(cell) {
-      var _this6 = this;
-
-      var id = cell._links.self.href.split('/')[4];
-
-      client({
-        method: 'GET',
-        path: "/hitcell?id=" + id
-      }).done(function (response) {}); // 1. Make a shallow copy of the items
-
-      var cells = _toConsumableArray(this.state.cells); // 2. Make a shallow copy of the item you want to mutate
-
-
-      var newCells = cells.map(function (c) {
-        if (c._links.self.href == cell._links.self.href || c.shipCell == true && c._links.ship.href !== cell._links.ship.href) {
-          return c;
-        }
-
-        return _this6.getCell(c);
-      }); // 5. Set the state to our new copy
-
-      this.setState({
-        items: items
-      });
-    }
-  }, {
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.loadFromServer();
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this7 = this;
-
-      var foobar = "   ";
-      var map = this.state.cells.map(function (cell) {
-        return React.createElement(Cell, {
-          key: cell.id,
-          cell: cell,
-          cellUpdate: _this7.cellUpdate,
-          type: "Computer"
-        });
-      });
-      return React.createElement("div", {
-        className: "game-board"
-      }, React.createElement("div", {
-        className: "status"
-      }, "ComputerFleetBoard"), map, React.createElement("div", {
-        className: "status"
-      }, foobar));
-    }
-  }]);
-
-  return ComputerFleetBoard;
-}(React.Component);
-
 var Cell =
 /*#__PURE__*/
-function (_React$Component3) {
-  _inherits(Cell, _React$Component3);
+function (_React$Component2) {
+  _inherits(Cell, _React$Component2);
 
   function Cell(props) {
-    var _this8;
+    var _this4;
 
     _classCallCheck(this, Cell);
 
-    _this8 = _possibleConstructorReturn(this, _getPrototypeOf(Cell).call(this, props));
-    _this8.handleHit = _this8.handleHit.bind(_assertThisInitialized(_assertThisInitialized(_this8)));
-    return _this8;
+    _this4 = _possibleConstructorReturn(this, _getPrototypeOf(Cell).call(this, props));
+    _this4.handleHit = _this4.handleHit.bind(_assertThisInitialized(_assertThisInitialized(_this4)));
+    return _this4;
   }
 
   _createClass(Cell, [{
@@ -27054,10 +26941,10 @@ function (_React$Component3) {
 }(React.Component);
 
 ReactDOM.render(React.createElement(Board, {
-  type: "UserFleetBoard"
+  type: "userFleetBoard"
 }), document.getElementById('userFleetBoard'));
 ReactDOM.render(React.createElement(Board, {
-  type: "ComputerFleetBoard"
+  type: "computerFleetBoard"
 }), document.getElementById('computerFleetBoard'));
 
 /***/ }),
