@@ -2,7 +2,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
 
-class UserFleetBoard extends React.Component {
+class Board extends React.Component {
 
 	constructor(props) {
 		super(props);
@@ -20,7 +20,7 @@ class UserFleetBoard extends React.Component {
 	}
 
     loadFromServer() {
-        client({method: 'GET', path: '/board?type=userFleetBoard'}).done(response => {
+        client({method: 'GET', path: '/board?type=' + this.props.type}).done(response => {
             client({method: 'GET', path: '/boards/' + response.entity.id + '/cells'}).done(response2 => {
                 this.setState({cells: response2.entity._embedded.cells });
             });
@@ -38,7 +38,12 @@ class UserFleetBoard extends React.Component {
     }
 
     getCellDisplayStyle(cell) {
-        let cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
+        let cumtomCss = "invisible"
+        if(this.props.type == "UserFleetBoard") {
+            cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
+        } else {
+            cumtomCss = cell.hit == false ? "invisible" : "visible";
+        }
         return "square board-cell " + cumtomCss;
     }
 
@@ -49,20 +54,6 @@ class UserFleetBoard extends React.Component {
         });
 
         this.loadFromServer();
-
-        // // 1. Make a shallow copy of the items
-        // let cells = [...this.state.cells];
-        // // 2. Make a shallow copy of the item you want to mutate
-        // let newCells = cells.map(c => {
-        //     if((c._links.self.href == cell._links.self.href) ||
-        //         ((c.shipCell == true) && (c._links.ship.href !== cell._links.ship.href))) {
-        //         c;
-        //     } else {
-        //         this.getCell(c);
-        //     }
-        // });
-        // // 5. Set the state to our new copy
-        // this.setState({newCells});
     }
 
 	componentDidMount() {
@@ -83,7 +74,7 @@ class UserFleetBoard extends React.Component {
 
         return (
         <div className="game-board">
-            <div className="status">UserFleetBoard</div>
+            <div className="status">{this.props.type}</div>
             {map}
             <div className="status">{foobar}</div>
         </div>
@@ -168,21 +159,6 @@ class Cell extends React.Component {
         this.props.cellUpdate(this.props.cell);
     }
 
-    // updateState(cell) {
-    //     let stateVal = cell.sunk == true ? "." : cell.hit == true ? "X" : cell.shipCell == true ? "S" : "-";
-    //     let cumtomCss = "invisible"
-    //     if(this.props.type == "User") {
-    //         cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
-    //     } else {
-    //         cumtomCss = cell.hit == false ? "invisible" : "visible";
-    //     }
-    //     let className = "square board-cell " + cumtomCss;
-    //     this.setState({
-    //         val: stateVal,
-    //         sty: className
-    //     })
-    // }
-
     render() {
         return (
             <button
@@ -199,11 +175,11 @@ class Cell extends React.Component {
 
 
 ReactDOM.render(
-	<UserFleetBoard />,
+	<Board type="UserFleetBoard"/>,
 	document.getElementById('userFleetBoard')
 )
 
-// ReactDOM.render(
-// 	<ComputerFleetBoard />,
-// 	document.getElementById('computerFleetBoard')
-// )
+ReactDOM.render(
+	<Board type="ComputerFleetBoard" />,
+	document.getElementById('computerFleetBoard')
+)

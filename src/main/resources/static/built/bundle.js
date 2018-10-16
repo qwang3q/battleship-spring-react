@@ -26799,17 +26799,17 @@ var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/in
 
 var client = __webpack_require__(/*! ./client */ "./src/main/js/client.js");
 
-var UserFleetBoard =
+var Board =
 /*#__PURE__*/
 function (_React$Component) {
-  _inherits(UserFleetBoard, _React$Component);
+  _inherits(Board, _React$Component);
 
-  function UserFleetBoard(props) {
+  function Board(props) {
     var _this;
 
-    _classCallCheck(this, UserFleetBoard);
+    _classCallCheck(this, Board);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(UserFleetBoard).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Board).call(this, props));
     _this.state = {
       height: 10,
       width: 10,
@@ -26823,14 +26823,14 @@ function (_React$Component) {
     return _this;
   }
 
-  _createClass(UserFleetBoard, [{
+  _createClass(Board, [{
     key: "loadFromServer",
     value: function loadFromServer() {
       var _this2 = this;
 
       client({
         method: 'GET',
-        path: '/board?type=userFleetBoard'
+        path: '/board?type=' + this.props.type
       }).done(function (response) {
         client({
           method: 'GET',
@@ -26860,7 +26860,14 @@ function (_React$Component) {
   }, {
     key: "getCellDisplayStyle",
     value: function getCellDisplayStyle(cell) {
-      var cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
+      var cumtomCss = "invisible";
+
+      if (this.props.type == "UserFleetBoard") {
+        cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
+      } else {
+        cumtomCss = cell.hit == false ? "invisible" : "visible";
+      }
+
       return "square board-cell " + cumtomCss;
     }
   }, {
@@ -26872,19 +26879,7 @@ function (_React$Component) {
         method: 'GET',
         path: "/hitcell?id=" + id
       }).done(function (response) {});
-      this.loadFromServer(); // // 1. Make a shallow copy of the items
-      // let cells = [...this.state.cells];
-      // // 2. Make a shallow copy of the item you want to mutate
-      // let newCells = cells.map(c => {
-      //     if((c._links.self.href == cell._links.self.href) ||
-      //         ((c.shipCell == true) && (c._links.ship.href !== cell._links.ship.href))) {
-      //         c;
-      //     } else {
-      //         this.getCell(c);
-      //     }
-      // });
-      // // 5. Set the state to our new copy
-      // this.setState({newCells});
+      this.loadFromServer();
     }
   }, {
     key: "componentDidMount",
@@ -26917,7 +26912,7 @@ function (_React$Component) {
     }
   }]);
 
-  return UserFleetBoard;
+  return Board;
 }(React.Component);
 
 var ComputerFleetBoard =
@@ -27044,21 +27039,7 @@ function (_React$Component3) {
     key: "handleHit",
     value: function handleHit() {
       this.props.cellUpdate(this.props.cell);
-    } // updateState(cell) {
-    //     let stateVal = cell.sunk == true ? "." : cell.hit == true ? "X" : cell.shipCell == true ? "S" : "-";
-    //     let cumtomCss = "invisible"
-    //     if(this.props.type == "User") {
-    //         cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
-    //     } else {
-    //         cumtomCss = cell.hit == false ? "invisible" : "visible";
-    //     }
-    //     let className = "square board-cell " + cumtomCss;
-    //     this.setState({
-    //         val: stateVal,
-    //         sty: className
-    //     })
-    // }
-
+    }
   }, {
     key: "render",
     value: function render() {
@@ -27072,10 +27053,12 @@ function (_React$Component3) {
   return Cell;
 }(React.Component);
 
-ReactDOM.render(React.createElement(UserFleetBoard, null), document.getElementById('userFleetBoard')); // ReactDOM.render(
-// 	<ComputerFleetBoard />,
-// 	document.getElementById('computerFleetBoard')
-// )
+ReactDOM.render(React.createElement(Board, {
+  type: "UserFleetBoard"
+}), document.getElementById('userFleetBoard'));
+ReactDOM.render(React.createElement(Board, {
+  type: "ComputerFleetBoard"
+}), document.getElementById('computerFleetBoard'));
 
 /***/ }),
 
