@@ -10,7 +10,8 @@ class Board extends React.Component {
             height : 10,
             width: 10,
             cells: [],
-            rows: []
+            rows: [],
+            defeated: false
         };
 
         this.loadFromServer = this.loadFromServer.bind(this);
@@ -25,6 +26,10 @@ class Board extends React.Component {
                 this.setState({cells: response2.entity._embedded.cells });
             });
         });
+
+        client({method: 'GET', path: '/isdefeated?href=' + this.props.type}).done(response => {
+            this.setState({defeated: response})
+        });
     }
 
     getCell(cell) {
@@ -34,7 +39,19 @@ class Board extends React.Component {
     }
 
     getCellDisplayVal(cell) {
-        return cell.sunk == true ? "." : cell.hit == true ? "X" : cell.shipCell == true ? "S" : "-";
+        if(cell.sunk == true) {
+            return "."
+        }
+        if(cell.shipCell == true) {
+            if(cell.hit == true) {
+                return "X"
+            }
+            return "S"
+        }
+        if(cell.hit == true) {
+            return "~"
+        }
+        return "-"
     }
 
     getCellDisplayStyle(cell) {
@@ -72,9 +89,11 @@ class Board extends React.Component {
                 cellStyle={this.getCellDisplayStyle(cell)} />
         )
 
+        const gameStatus = this.state.defeated ? "YOU LOSE" : this.props.type
+
         return (
         <div className="game-board">
-            <div className="status">{this.props.type}</div>
+            <div className="status">{gameStatus}</div>
             {map}
             <div className="status">{foobar}</div>
         </div>

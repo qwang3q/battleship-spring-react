@@ -126,7 +126,7 @@ public class Board {
 
         cell.setHit(true);
 
-        if(ship.isSunk()) {
+        if(ship != null && ship.isSunk()) {
             for(Cell shipCell : ship.getCells()) {
                 shipCell.setSunk(true);
             }

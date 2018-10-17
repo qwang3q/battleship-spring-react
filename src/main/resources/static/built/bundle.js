@@ -26806,7 +26806,8 @@ function (_React$Component) {
       height: 10,
       width: 10,
       cells: [],
-      rows: []
+      rows: [],
+      defeated: false
     };
     _this.loadFromServer = _this.loadFromServer.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.cellUpdate = _this.cellUpdate.bind(_assertThisInitialized(_assertThisInitialized(_this)));
@@ -26833,6 +26834,14 @@ function (_React$Component) {
           });
         });
       });
+      client({
+        method: 'GET',
+        path: '/isdefeated?href=' + this.props.type
+      }).done(function (response) {
+        _this2.setState({
+          defeated: response
+        });
+      });
     }
   }, {
     key: "getCell",
@@ -26847,7 +26856,23 @@ function (_React$Component) {
   }, {
     key: "getCellDisplayVal",
     value: function getCellDisplayVal(cell) {
-      return cell.sunk == true ? "." : cell.hit == true ? "X" : cell.shipCell == true ? "S" : "-";
+      if (cell.sunk == true) {
+        return ".";
+      }
+
+      if (cell.shipCell == true) {
+        if (cell.hit == true) {
+          return "X";
+        }
+
+        return "S";
+      }
+
+      if (cell.hit == true) {
+        return "~";
+      }
+
+      return "-";
     }
   }, {
     key: "getCellDisplayStyle",
@@ -26894,11 +26919,12 @@ function (_React$Component) {
           cellStyle: _this3.getCellDisplayStyle(cell)
         });
       });
+      var gameStatus = this.state.defeated ? "YOU LOSE" : this.props.type;
       return React.createElement("div", {
         className: "game-board"
       }, React.createElement("div", {
         className: "status"
-      }, this.props.type), map, React.createElement("div", {
+      }, gameStatus), map, React.createElement("div", {
         className: "status"
       }, foobar));
     }

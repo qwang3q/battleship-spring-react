@@ -59,13 +59,14 @@ public class DataController {
     }
 
     @RequestMapping(path="isdefeated") // This means URL's start with /isdefeated (after Application path)
-    public int checkDefeated(@RequestParam(value="href")String href) {
-        logger.info(href);
-        String[] parts = href.split("/");
-        Integer id = Integer.parseInt(parts[parts.length - 1]);
-        logger.info(id.toString());
-        Board board = mapRepository.findById(id).get();
-        if(board.isDefeated()) return 1;
-        return 0;
+    public Boolean checkDefeated(@RequestParam(value="name")String name) {
+        logger.info(name);
+        Iterable<Board> boards = mapRepository.findAll();
+
+        for(Board b: boards) {
+            if(b.getType().equals(name) && b.isDefeated()) return true;
+        }
+        
+        return false;
     }
 }
