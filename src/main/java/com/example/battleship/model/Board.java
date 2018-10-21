@@ -98,7 +98,7 @@ public class Board {
     public void initialize() {
         for (int i = 0; i < getCellCount(); i++) {
             Cell newCell = new Cell();
-            addCell(newCell);
+            addCell(newCell, i);
             newCell.setMap(this);
         }
     }
@@ -148,20 +148,38 @@ public class Board {
         return this.getCells().get(i);
     }
 
-    public void addCell(Cell cell) {
+    public void addCell(Cell cell, int id) {
         this.cells.add(cell);
+        cell.setIdOnBoard(id);
     }
 
     public Integer getIndexFromPosition(Position posn) {
-        Integer row = posn.getRowIndex();
-        Integer col = posn.getColumnIndex();
+        Integer row = posn.getRowIndex() - 1;
+        Integer col = posn.getColumnIndex() - 1;
         return row * getMapWidth() + col;
     }
 
     public Position getPositionFromIndex(Integer i) {
         Integer row = i / getMapHeight();
         Integer col = i % getMapWidth();
-        return new Position(row, col);
+        return new Position(row + 1, col + 1);
+    }
+
+    public boolean goodForPlaceMent(Position posn, Direction direction, Ship ship) {
+        if(posn == null || direction == null) return false;
+
+        int numOfCells = ship.getSize();
+
+        for (int i = 0; i < numOfCells; i++) {
+            if(posn.getColumnIndex() < 1 || posn.getRowIndex() < 1) return false;
+            if(posn.getColumnIndex() > 10 || posn.getRowIndex() > 10) return false;
+
+            Cell cell = getCell(posn);
+            if(cell.getShip() != null) return false;
+
+            posn = getNextPosition(posn, direction);
+        }
+        return true;
     }
 
     public void placeShipOnMap(Position posn, Direction direction, Ship ship) {

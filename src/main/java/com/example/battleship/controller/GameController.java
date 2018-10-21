@@ -21,10 +21,10 @@ public class GameController {
     private Board computerFleetBoard;
 
     private HashMap<Integer, Integer> shipDict = new HashMap<Integer, Integer>(){{
-        put(1, 4);
-        put(2, 3);
-        put(3, 2);
-        put(4, 1);
+        // put(1, 4);
+        put(2, 4);
+        put(3, 3);
+        put(4, 2);
     }};
 
     public Board getUserFleetBoard() {
@@ -50,15 +50,20 @@ public class GameController {
      * @param board  represents the given board.
      */
     protected void randomPlaceOneShip(Ship ship, Board board) {
-        Position posn = RandomInput.generateRandomPosition();
-        Direction direction = RandomInput.generateRandomDirection();
-        try {
-            logger.info("place ship at: " + posn);
+        Position posn = null;
+        Direction direction = null;
+        while(!board.goodForPlaceMent(posn, direction, ship)) {
+            posn = RandomInput.generateRandomPosition();
+            direction = RandomInput.generateRandomDirection();
+        }
+
+        // try {
+            logger.info("place ship at: " + posn + direction);
             board.placeShipOnMap(posn, direction, ship);
             ship.setMap(board);
-        } catch (Exception e) {
-            randomPlaceOneShip(ship, board);
-        }
+        // } catch (Exception e) {
+        //     randomPlaceOneShip(ship, board);
+        // }
     }
 
     /**
@@ -77,7 +82,10 @@ public class GameController {
     protected void placeShipsOnMap(Board board) {
         List<Ship> ships = new ArrayList<Ship>();
         for (Integer count : this.shipDict.keySet()) {
-            ships.add(new Ship(this.shipDict.get(count), 0));
+            for(Integer shipNum = 0; shipNum < this.shipDict.get(count); shipNum++)
+            {
+                ships.add(new Ship(count, 0));
+            }
         }
         randomPlacement(board, ships);
     }

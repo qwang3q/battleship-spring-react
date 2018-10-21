@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import javax.persistence.*;
 
 import java.io.Serializable;
+import java.util.function.IntBinaryOperator;
 
 /**
  * Represents the common properties of a cell in the map of the battleship game.
@@ -14,6 +15,7 @@ public class Cell implements Serializable {
     private boolean isShipCell;
     private boolean isHit;
     private boolean isSunk;
+    private int idOnBoard;
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -40,6 +42,14 @@ public class Cell implements Serializable {
 
     public Cell() {
         this(false, false);
+    }
+
+    public int getIdOnBoard() {
+        return idOnBoard;
+    }
+
+    public void setIdOnBoard(int id) {
+        this.idOnBoard = id;
     }
 
     public boolean isShipCell() {

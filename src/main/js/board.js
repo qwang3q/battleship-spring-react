@@ -23,7 +23,9 @@ class Board extends React.Component {
     loadFromServer() {
         client({method: 'GET', path: '/board?type=' + this.props.type}).done(response => {
             client({method: 'GET', path: '/boards/' + response.entity.id + '/cells'}).done(response2 => {
-                this.setState({cells: response2.entity._embedded.cells });
+                this.setState({cells: response2.entity._embedded.cells.sort((a,b) =>
+                    (a.idOnBoard > b.idOnBoard ? 1 : -1)
+                ) });
             });
         });
 

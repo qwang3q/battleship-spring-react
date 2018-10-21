@@ -26830,7 +26830,9 @@ function (_React$Component) {
           path: '/boards/' + response.entity.id + '/cells'
         }).done(function (response2) {
           _this2.setState({
-            cells: response2.entity._embedded.cells
+            cells: response2.entity._embedded.cells.sort(function (a, b) {
+              return a.idOnBoard > b.idOnBoard ? 1 : -1;
+            })
           });
         });
       });
