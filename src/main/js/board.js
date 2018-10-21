@@ -7,35 +7,45 @@ const client = require('./client');
 //     document.getElementById('computerFleetBoard').loadFromServer();
 // }
 
-class Board extends React.Component {
-
-	constructor(props) {
+class App extends React.Component {
+    constructor(props) {
 		super(props);
         this.state = { 
             height : 10,
             width: 10,
-            cells: [],
-            rows: [],
-            defeated: "false"
+            userCells: [],
+            computerCells: [],
+            userDefeated: "false",
+            computerDefeated: "false"
         };
 
         this.loadFromServer = this.loadFromServer.bind(this);
         this.cellUpdate = this.cellUpdate.bind(this);
-        this.getCellDisplayStyle = this.getCellDisplayStyle.bind(this);
-        this.getCellDisplayVal = this.getCellDisplayVal.bind(this);
 	}
 
     loadFromServer() {
-        client({method: 'GET', path: '/board?type=' + this.props.type}).done(response => {
+        client({method: 'GET', path: '/board?type=userFleetBoard'}).done(response => {
             client({method: 'GET', path: '/boards/' + response.entity.id + '/cells'}).done(response2 => {
-                this.setState({cells: response2.entity._embedded.cells.sort((a,b) =>
+                this.setState({userCells: response2.entity._embedded.cells.sort((a,b) =>
                     (a.idOnBoard > b.idOnBoard ? 1 : -1)
                 ) });
             });
         });
 
-        client({method: 'GET', path: '/isdefeated?name=' + this.props.type}).done(response => {
-            this.setState({defeated: response.entity})
+        client({method: 'GET', path: '/isdefeated?name=userFleetBoard'}).done(response => {
+            this.setState({userDefeated: response.entity})
+        });
+
+        client({method: 'GET', path: '/board?type=computerFleetBoard'}).done(response => {
+            client({method: 'GET', path: '/boards/' + response.entity.id + '/cells'}).done(response2 => {
+                this.setState({computerCells: response2.entity._embedded.cells.sort((a,b) =>
+                    (a.idOnBoard > b.idOnBoard ? 1 : -1)
+                ) });
+            });
+        });
+
+        client({method: 'GET', path: '/isdefeated?name=computerFleetBoard'}).done(response => {
+            this.setState({computerDefeated: response.entity})
         });
     }
 
@@ -44,6 +54,46 @@ class Board extends React.Component {
             return response.entity;
         });
     }
+
+    cellUpdate(cell) {
+        let id = cell._links.self.href.split('/')[4];
+        client({method: 'GET', path: "/hitcell?id=" + id}).done(response => {
+
+        });
+
+        this.loadFromServer();
+    }
+
+	componentDidMount() {
+        this.loadFromServer();
+	}
+
+	render() {
+        return (
+            <div>
+
+                    <Board key="userFleetBoard" cellUpdate={this.cellUpdate}  cells={this.state.userCells} defeated={this.state.userDefeated} type="userFleetBoard" />
+
+
+                    <Board key="computerFleetBoard" cellUpdate={this.cellUpdate}  cells={this.state.computerCells} defeated={this.state.computerDefeated} type="computerFleetBoard" />
+
+            </div>
+        )
+    }
+}
+
+class Board extends React.Component {
+
+	constructor(props) {
+		super(props);
+        this.state = { 
+            height : 10,
+            width: 10
+        };
+
+        this.getCellDisplayStyle = this.getCellDisplayStyle.bind(this);
+        this.getCellDisplayVal = this.getCellDisplayVal.bind(this);
+	}
 
     getCellDisplayVal(cell) {
         if(cell.sunk == true) {
@@ -61,9 +111,9 @@ class Board extends React.Component {
         return "-"
     }
 
-    getCellDisplayStyle(cell) {
+    getCellDisplayStyle(cell, boardType) {
         let cumtomCss = "invisible"
-        if(this.props.type == "userFleetBoard") {
+        if(boardType == "userFleetBoard") {
             cumtomCss = cell.hit == true ? "visible" : cell.shipCell == true ? "visible" : "invisible";
         } else {
             cumtomCss = cell.hit == false ? "invisible" : "visible";
@@ -71,39 +121,25 @@ class Board extends React.Component {
         return "square board-cell " + cumtomCss;
     }
 
-    cellUpdate(cell) {
-        let id = cell._links.self.href.split('/')[4];
-        client({method: 'GET', path: "/hitcell?id=" + id}).done(response => {
-
-        });
-
-        this.loadFromServer();
-        // globalUpdate();
-    }
-
-	componentDidMount() {
-        this.loadFromServer();
-	}
-
 	render() {
         const foobar = "   ";
-        const map = this.state.cells.map ( cell =>
+        const map = this.props.cells.map ( cell =>
             <Cell key={
                 cell._links.self.href} 
                 cell={cell} 
-                cellUpdate={this.cellUpdate} 
-                type="User"
+                cellUpdate={this.props.cellUpdate} 
+                type={this.props.type}
                 cellVal={this.getCellDisplayVal(cell)}
-                cellStyle={this.getCellDisplayStyle(cell)} />
+                cellStyle={this.getCellDisplayStyle(cell, this.props.type)} />
         )
 
-        const gameStatus = this.state.defeated == "true" ? "YOU LOSE" : this.props.type
+        const gameStatus = this.props.defeated == "true" ? "YOU LOSE" : this.props.type
 
         return (
         <div className="game-board">
             <div className="status">{gameStatus}</div>
             {map}
-            <div className="status">{this.state.defeated}</div>
+            <div className="status">{this.props.defeated}</div>
         </div>
         )
     }
@@ -118,7 +154,7 @@ class Cell extends React.Component {
     }
 
     handleHit() {
-        this.props.cellUpdate(this.props.cell);
+        this.props.cellUpdate(this.props.cell, this.props.type);
     }
 
     render() {
@@ -160,14 +196,14 @@ class NewGame extends React.Component {
 
 
 ReactDOM.render(
-	<Board type="userFleetBoard"/>,
+	<App/>,
 	document.getElementById('userFleetBoard')
 )
 
-ReactDOM.render(
-	<Board type="computerFleetBoard" />,
-	document.getElementById('computerFleetBoard')
-)
+// ReactDOM.render(
+// 	<Board type="computerFleetBoard" />,
+// 	document.getElementById('computerFleetBoard')
+// )
 
 ReactDOM.render(
 	<NewGame />,
