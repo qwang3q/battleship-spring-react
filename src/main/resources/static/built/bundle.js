@@ -26789,7 +26789,11 @@ var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 
-var client = __webpack_require__(/*! ./client */ "./src/main/js/client.js");
+var client = __webpack_require__(/*! ./client */ "./src/main/js/client.js"); // function globalUpdate() {
+//     document.getElementById('userFleetBoard').loadFromServer();
+//     document.getElementById('computerFleetBoard').loadFromServer();
+// }
+
 
 var Board =
 /*#__PURE__*/
@@ -26807,7 +26811,7 @@ function (_React$Component) {
       width: 10,
       cells: [],
       rows: [],
-      defeated: false
+      defeated: "false"
     };
     _this.loadFromServer = _this.loadFromServer.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.cellUpdate = _this.cellUpdate.bind(_assertThisInitialized(_assertThisInitialized(_this)));
@@ -26838,10 +26842,10 @@ function (_React$Component) {
       });
       client({
         method: 'GET',
-        path: '/isdefeated?href=' + this.props.type
+        path: '/isdefeated?name=' + this.props.type
       }).done(function (response) {
         _this2.setState({
-          defeated: response
+          defeated: response.entity
         });
       });
     }
@@ -26898,7 +26902,7 @@ function (_React$Component) {
         method: 'GET',
         path: "/hitcell?id=" + id
       }).done(function (response) {});
-      this.loadFromServer();
+      this.loadFromServer(); // globalUpdate();
     }
   }, {
     key: "componentDidMount",
@@ -26921,14 +26925,14 @@ function (_React$Component) {
           cellStyle: _this3.getCellDisplayStyle(cell)
         });
       });
-      var gameStatus = this.state.defeated ? "YOU LOSE" : this.props.type;
+      var gameStatus = this.state.defeated == "true" ? "YOU LOSE" : this.props.type;
       return React.createElement("div", {
         className: "game-board"
       }, React.createElement("div", {
         className: "status"
       }, gameStatus), map, React.createElement("div", {
         className: "status"
-      }, foobar));
+      }, this.state.defeated));
     }
   }]);
 

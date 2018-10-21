@@ -2,6 +2,11 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
 
+// function globalUpdate() {
+//     document.getElementById('userFleetBoard').loadFromServer();
+//     document.getElementById('computerFleetBoard').loadFromServer();
+// }
+
 class Board extends React.Component {
 
 	constructor(props) {
@@ -11,7 +16,7 @@ class Board extends React.Component {
             width: 10,
             cells: [],
             rows: [],
-            defeated: false
+            defeated: "false"
         };
 
         this.loadFromServer = this.loadFromServer.bind(this);
@@ -29,8 +34,8 @@ class Board extends React.Component {
             });
         });
 
-        client({method: 'GET', path: '/isdefeated?href=' + this.props.type}).done(response => {
-            this.setState({defeated: response})
+        client({method: 'GET', path: '/isdefeated?name=' + this.props.type}).done(response => {
+            this.setState({defeated: response.entity})
         });
     }
 
@@ -73,6 +78,7 @@ class Board extends React.Component {
         });
 
         this.loadFromServer();
+        // globalUpdate();
     }
 
 	componentDidMount() {
@@ -91,13 +97,13 @@ class Board extends React.Component {
                 cellStyle={this.getCellDisplayStyle(cell)} />
         )
 
-        const gameStatus = this.state.defeated ? "YOU LOSE" : this.props.type
+        const gameStatus = this.state.defeated == "true" ? "YOU LOSE" : this.props.type
 
         return (
         <div className="game-board">
             <div className="status">{gameStatus}</div>
             {map}
-            <div className="status">{foobar}</div>
+            <div className="status">{this.state.defeated}</div>
         </div>
         )
     }

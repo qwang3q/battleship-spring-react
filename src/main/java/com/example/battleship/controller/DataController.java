@@ -55,18 +55,34 @@ public class DataController {
         Cell cell = cellRepository.findById(id).get();
         cell.getMap().attackCell(cell);
         cellRepository.save(cell);
+
+        GameController gameController = new GameController();
+        Cell userCell = null;
+        Integer userCellIdOnBoard = gameController.findRandomCellForAttack("userFleetBoard");
+        Iterable<Cell> cells = cellRepository.findAll();
+
+        for(Cell c : cells) {
+            if( (c.getMap().getType().equals("userFleetBoard")) &&    
+                (c.getIdOnBoard() == userCellIdOnBoard)) {
+                userCell = c;
+            }
+        }
+
+        userCell.getMap().attackCell(userCell);
+        cellRepository.save(userCell);
+
         return "{}";
     }
 
     @RequestMapping(path="isdefeated") // This means URL's start with /isdefeated (after Application path)
-    public Boolean checkDefeated(@RequestParam(value="name")String name) {
+    public String checkDefeated(@RequestParam(value="name")String name) {
         logger.info(name);
         Iterable<Board> boards = mapRepository.findAll();
 
         for(Board b: boards) {
-            if(b.getType().equals(name) && b.isDefeated()) return true;
+            if(b.getType().equals(name) && b.isDefeated()) return "true";
         }
         
-        return false;
+        return "false";
     }
 }

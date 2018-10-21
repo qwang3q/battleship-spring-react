@@ -43,6 +43,16 @@ public class GameController {
         this.computerFleetBoard = new Board("computerFleetBoard");
     }
 
+    public Integer findRandomCellForAttack(String type) {
+        Position posn = null;
+        Board board = type == "userFleetBoard" ? this.getUserFleetBoard() : this.getComputerFleetBoard();
+        while(posn == null || board.getCell(posn).getHit()) {
+            posn = RandomInput.generateRandomPosition();
+        }
+
+        return board.getIndexFromPosition(posn);
+    }
+
     /**
      * Randomly choose a position and direction to place the given ship on board.
      *
