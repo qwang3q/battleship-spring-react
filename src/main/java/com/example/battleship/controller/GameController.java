@@ -22,9 +22,9 @@ public class GameController {
 
     private HashMap<Integer, Integer> shipDict = new HashMap<Integer, Integer>(){{
         // put(1, 4);
-        put(2, 4);
-        put(3, 3);
-        put(4, 2);
+        put(2, 3);
+        put(3, 2);
+        put(4, 1);
     }};
 
     public Board getUserFleetBoard() {

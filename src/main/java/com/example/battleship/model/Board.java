@@ -169,13 +169,30 @@ public class Board {
         if(posn == null || direction == null) return false;
 
         int numOfCells = ship.getSize();
+        List<Position> visitedPosn = new ArrayList();
 
         for (int i = 0; i < numOfCells; i++) {
+            // First make sure neighbors are not ship cells
+            for (int j = -1; j <= 1; j++) {
+                for (int k = -1; k <= 1; k++) {
+                    Position newPosn = new Position(posn.getRow() + j, Character.toChars(posn.getColumn() + k)[0]);
+                    if(visitedPosn.contains(newPosn)) continue;
+
+                    if(newPosn.getColumnIndex() < 1 || newPosn.getRowIndex() < 1) continue;
+                    if(newPosn.getColumnIndex() > 10 || newPosn.getRowIndex() > 10) continue;
+
+                    Cell newCell = getCell(newPosn);
+                    if(newCell.getShip() != null) return false;
+                }
+            }
+
             if(posn.getColumnIndex() < 1 || posn.getRowIndex() < 1) return false;
             if(posn.getColumnIndex() > 10 || posn.getRowIndex() > 10) return false;
 
             Cell cell = getCell(posn);
             if(cell.getShip() != null) return false;
+
+            visitedPosn.add(posn);
 
             posn = getNextPosition(posn, direction);
         }
