@@ -25,9 +25,10 @@ public class DataController {
     @Autowired
     private CellRepository cellRepository;
 
-    @RequestMapping(path="newgame") // This means URL's start with /board (after Application path)
+    @RequestMapping(path="newgame") // This means URL's start with /newgame (after Application path)
     public String newGame() {
         GameController gameController = new GameController();
+        this.mapRepository.deleteAll();
         gameController.setUpGame();
 
         this.mapRepository.save(gameController.getUserFleetBoard());

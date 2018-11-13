@@ -26789,11 +26789,7 @@ var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 
-var client = __webpack_require__(/*! ./client */ "./src/main/js/client.js"); // function globalUpdate() {
-//     document.getElementById('userFleetBoard').loadFromServer();
-//     document.getElementById('computerFleetBoard').loadFromServer();
-// }
-
+var client = __webpack_require__(/*! ./client */ "./src/main/js/client.js");
 
 var App =
 /*#__PURE__*/
@@ -26943,7 +26939,7 @@ function (_React$Component2) {
     key: "getCellDisplayVal",
     value: function getCellDisplayVal(cell) {
       if (cell.sunk == true) {
-        return ".";
+        return "O";
       }
 
       if (cell.shipCell == true) {
@@ -26989,14 +26985,25 @@ function (_React$Component2) {
           cellStyle: _this4.getCellDisplayStyle(cell, _this4.props.type)
         });
       });
-      var gameStatus = this.props.defeated == "true" ? "YOU LOSE" : this.props.type;
+      var gameStatus = this.props.type == "userFleetBoard" ? "User Map" : "Computer Map";
+
+      if (this.props.defeated == "true" || this.props.defeated == true) {
+        gameStatus = this.props.type == "userFleetBoard" ? "You Lose" : "Computer Lose";
+        var message = this.props.type == "userFleetBoard" ? "You Lose" : "Congratulations! You Win!";
+        alert(message);
+        client({
+          method: 'GET',
+          path: "/newgame"
+        }).done(function (response) {});
+      }
+
       return React.createElement("div", {
         className: "game-board"
       }, React.createElement("div", {
         className: "status"
       }, gameStatus), map, React.createElement("div", {
         className: "status"
-      }, this.props.defeated));
+      }, foobar));
     }
   }]);
 
@@ -27058,6 +27065,7 @@ function (_React$Component4) {
         method: 'GET',
         path: "/newgame"
       }).done(function (response) {});
+      alert("Starting new game"); //window.location.reload();
     }
   }, {
     key: "render",
@@ -27071,7 +27079,7 @@ function (_React$Component4) {
   return NewGame;
 }(React.Component);
 
-ReactDOM.render(React.createElement(App, null), document.getElementById('userFleetBoard')); // ReactDOM.render(
+ReactDOM.render(React.createElement(App, null), document.getElementById('Boards')); // ReactDOM.render(
 // 	<Board type="computerFleetBoard" />,
 // 	document.getElementById('computerFleetBoard')
 // )

@@ -2,11 +2,6 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
 
-// function globalUpdate() {
-//     document.getElementById('userFleetBoard').loadFromServer();
-//     document.getElementById('computerFleetBoard').loadFromServer();
-// }
-
 class App extends React.Component {
     constructor(props) {
 		super(props);
@@ -71,12 +66,8 @@ class App extends React.Component {
 	render() {
         return (
             <div>
-
-                    <Board key="userFleetBoard" cellUpdate={this.cellUpdate}  cells={this.state.userCells} defeated={this.state.userDefeated} type="userFleetBoard" />
-
-
-                    <Board key="computerFleetBoard" cellUpdate={this.cellUpdate}  cells={this.state.computerCells} defeated={this.state.computerDefeated} type="computerFleetBoard" />
-
+                <Board key="userFleetBoard" cellUpdate={this.cellUpdate}  cells={this.state.userCells} defeated={this.state.userDefeated} type="userFleetBoard" />
+                <Board key="computerFleetBoard" cellUpdate={this.cellUpdate}  cells={this.state.computerCells} defeated={this.state.computerDefeated} type="computerFleetBoard" />
             </div>
         )
     }
@@ -97,7 +88,7 @@ class Board extends React.Component {
 
     getCellDisplayVal(cell) {
         if(cell.sunk == true) {
-            return "."
+            return "O"
         }
         if(cell.shipCell == true) {
             if(cell.hit == true) {
@@ -124,22 +115,29 @@ class Board extends React.Component {
 	render() {
         const foobar = "   ";
         const map = this.props.cells.map ( cell =>
-            <Cell key={
-                cell._links.self.href} 
+            <Cell key={cell._links.self.href} 
                 cell={cell} 
                 cellUpdate={this.props.cellUpdate} 
                 type={this.props.type}
                 cellVal={this.getCellDisplayVal(cell)}
                 cellStyle={this.getCellDisplayStyle(cell, this.props.type)} />
         )
+        
+        let gameStatus = this.props.type == "userFleetBoard" ? "User Map" : "Computer Map";
+        if(this.props.defeated == "true" || this.props.defeated == true) {
+            gameStatus = this.props.type == "userFleetBoard" ? "You Lose" : "Computer Lose";
+            let message = this.props.type == "userFleetBoard" ? "You Lose" : "Congratulations! You Win!"
+            alert(message);
+            client({method: 'GET', path: "/newgame"}).done(response => {
 
-        const gameStatus = this.props.defeated == "true" ? "YOU LOSE" : this.props.type
+            });
+        }
 
         return (
         <div className="game-board">
             <div className="status">{gameStatus}</div>
             {map}
-            <div className="status">{this.props.defeated}</div>
+            <div className="status">{foobar}</div>
         </div>
         )
     }
@@ -180,6 +178,8 @@ class NewGame extends React.Component {
         client({method: 'GET', path: "/newgame"}).done(response => {
 
         });
+        alert("Starting new game");
+        //window.location.reload();
     }
 
     render() {
@@ -197,7 +197,7 @@ class NewGame extends React.Component {
 
 ReactDOM.render(
 	<App/>,
-	document.getElementById('userFleetBoard')
+	document.getElementById('Boards')
 )
 
 // ReactDOM.render(
